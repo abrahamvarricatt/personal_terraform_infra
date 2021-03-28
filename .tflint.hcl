@@ -1,7 +1,12 @@
 config {
   module     = true
-  deep_check = true
 }
+
+#plugin "aws" {
+#  enabled = true
+#  deep_check = true
+#}
+
 
 rule "terraform_documented_variables" {
   enabled = true
