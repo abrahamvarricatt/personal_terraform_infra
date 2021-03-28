@@ -1,0 +1,6 @@
+# am ignoring the terraform lock for now, but need to read up on it later
+# ref: https://nklya.medium.com/terraform-v0-14-dependency-lock-file-terraform-lock-hcl-gotchas-da8c9dda697
+# ref: https://www.reddit.com/r/Terraform/comments/lszldj/terraform_provider_dependency_lock_file/gouhilj/?utm_source=share&utm_medium=ios_app&utm_name=iossmf&context=3
+# ref: https://www.terraform.io/docs/language/dependency-lock.html
+.terraform.lock.hcl
+.terraform/
