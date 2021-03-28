@@ -3,6 +3,7 @@ repos:
   rev: v1.48.0 # from https://github.com/antonbabenko/pre-commit-terraform/releases
   hooks:
     - id: terraform_fmt
+    - id: terraform_validate
     - id: terraform_tflint
       args:
         - '--args=--config=__GIT_WORKING_DIR__/.tflint.hcl'
