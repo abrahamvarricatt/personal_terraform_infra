@@ -13,17 +13,17 @@ executors:
 
 jobs:
 
-  initial_test_job:
+  check-code-quality:
     executor: pull_request_executor
     steps:
       - checkout
       - run:
-          name: echo to console
-          command: echo "hello world"
+          name: Run pre-commit hooks
+          command: git diff --no-commit-id --name-only -r origin/master | xargs pre-commit run --files
 
 workflows:
   version: 2
 
   pull_request_workflow:
     jobs:
-      - initial_test_job
+      - check-code-quality

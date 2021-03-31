@@ -39,5 +39,8 @@ RUN curl -L -o /usr/local/bin/tfsec "https://github.com/tfsec/tfsec/releases/dow
 RUN curl -L -o /usr/local/bin/terraform-docs "https://github.com/terraform-docs/terraform-docs/releases/download/v${TERRAFORM_DOCS_VERSION}/terraform-docs-v${TERRAFORM_DOCS_VERSION}-linux-amd64" && \
     chmod +x /usr/local/bin/terraform-docs
 
+# install pre-commit
+RUN pip install pre-commit
+
 # run forever
 ENTRYPOINT tail -f /dev/null
