@@ -18,7 +18,7 @@ resource "aws_instance" "example" {
   instance_type = "t2.micro"
 
   metadata_options {
-    http_tokens = "required"
+    http_endpoint = "disabled"
   }
 
   root_block_device {

@@ -4,3 +4,4 @@
 # ref: https://www.terraform.io/docs/language/dependency-lock.html
 .terraform.lock.hcl
 .terraform/
+terraform.tfstate
