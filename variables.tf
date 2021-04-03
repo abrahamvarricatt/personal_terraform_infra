@@ -33,3 +33,9 @@ variable "private_subnets" {
   type        = list(string)
   default     = []
 }
+
+variable "region" {
+  description = "AWS region where resources will be created"
+  type        = string
+  default     = "us-east-1"
+}
