@@ -1,22 +1,34 @@
+locals {
+  tags = merge(
+    {
+      "Name" = var.name
+    },
+    var.tags,
+  )
+}
+
 provider "aws" {
-  profile = "default"
-  region  = "us-west-2"
+  region = var.region
 }
 
-resource "aws_instance" "example" {
-  ami           = "ami-08d70e59c07c61a3a"
-  instance_type = "t2.micro"
+###################
+# VPC
+###################
+module "vpc" {
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "v2.64.0"
 
-  metadata_options {
-    http_endpoint = "disabled"
-  }
+  create_vpc = true
 
-  root_block_device {
-    encrypted = true
-  }
+  name = var.name
 
-  tags = {
-    Name = "ExampleInstance"
-  }
+  cidr            = var.cidr
+  azs             = var.azs
+  private_subnets = var.private_subnets
+  public_subnets  = var.public_subnets
+
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
+  tags = local.tags
 }
-
