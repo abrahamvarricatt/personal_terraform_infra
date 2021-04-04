@@ -23,7 +23,6 @@ Lets see how terraform docs shows stuff,
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_acm"></a> [acm](#module\_acm) | terraform-aws-modules/acm/aws | v2.12.0 |
 | <a name="module_alb"></a> [alb](#module\_alb) | terraform-aws-modules/alb/aws | v5.10.0 |
 | <a name="module_alb_http_sg"></a> [alb\_http\_sg](#module\_alb\_http\_sg) | terraform-aws-modules/security-group/aws//modules/http-80 | v3.17.0 |
 | <a name="module_alb_https_sg"></a> [alb\_https\_sg](#module\_alb\_https\_sg) | terraform-aws-modules/security-group/aws//modules/https-443 | v3.17.0 |

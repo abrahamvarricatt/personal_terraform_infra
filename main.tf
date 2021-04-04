@@ -77,18 +77,18 @@ module "alb_http_sg" {
 ###################
 # ACM (SSL certificate)
 ###################
-module "acm" {
-  source  = "terraform-aws-modules/acm/aws"
-  version = "v2.12.0"
+# module "acm" {
+#  source  = "terraform-aws-modules/acm/aws"
+#  version = "v2.12.0"
 
-  create_certificate = true
+#  create_certificate = true
 
-  domain_name = "" # join(".", [var.name, var.route53_zone_name])
+#  domain_name = "" # join(".", [var.name, var.route53_zone_name])
+#
+#  zone_id = element(concat(data.aws_route53_zone.this.*.id, [""]), 0)
 
-  zone_id = element(concat(data.aws_route53_zone.this.*.id, [""]), 0)
-
-  tags = local.tags
-}
+#  tags = local.tags
+# }
 
 ###################
 # ALB
@@ -110,27 +110,12 @@ module "alb" {
     prefix  = var.alb_log_location_prefix
   }
 
-  listener_ssl_policy_default = var.alb_listener_ssl_policy_default
-  https_listeners = [
-    {
-      target_group_index = 0
-      port               = 443
-      protocol           = "HTTPS"
-      certificate_arn    = module.acm.this_acm_certificate_arn
-      action_type        = "forward"
-    },
-  ]
-
   http_tcp_listeners = [
     {
-      port        = 80
-      protocol    = "HTTP"
-      action_type = "redirect"
-      redirect = {
-        port        = 443
-        protocol    = "HTTPS"
-        status_code = "HTTP_301"
-      }
+      target_group_index = 0
+      port               = 80
+      protocol           = "HTTP"
+      action_type        = "forward"
     },
   ]
 
