@@ -286,3 +286,58 @@ variable "extra_container_definitions" {
   type        = list(any)
   default     = []
 }
+
+variable "external_task_definition_updates" {
+  description = "Enable to allow the task definition to be updated outside of this Terraform module. This should be enabled when using a deployment tool such as ecs-deploy which updates the task definition and will then keep the ECS service using the latest version of the task definition."
+  type        = bool
+  default     = false
+}
+
+variable "ecs_service_desired_count" {
+  description = "The number of instances of the task definition to place and keep running"
+  type        = number
+  default     = 1
+}
+
+variable "ecs_service_platform_version" {
+  description = "The platform version on which to run your service"
+  type        = string
+  default     = "LATEST"
+}
+
+variable "ecs_service_deployment_maximum_percent" {
+  description = "The upper limit (as a percentage of the service's desiredCount) of the number of running tasks that can be running in a service during a deployment"
+  type        = number
+  default     = 200
+}
+
+variable "ecs_service_deployment_minimum_healthy_percent" {
+  description = "The lower limit (as a percentage of the service's desiredCount) of the number of running tasks that must remain running and healthy in a service during a deployment"
+  type        = number
+  default     = 50
+}
+
+variable "atlantis_security_group_tags" {
+  description = "Additional tags to put on the atlantis security group"
+  type        = map(string)
+  default     = {}
+}
+
+# ECS Service / Task
+variable "ecs_service_assign_public_ip" {
+  description = "Should be true, if ECS service is using public subnets (more info: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_cannot_pull_image.html)"
+  type        = bool
+  default     = false
+}
+
+variable "enable_ecs_managed_tags" {
+  description = "Specifies whether to enable Amazon ECS managed tags for the tasks within the service"
+  type        = bool
+  default     = false
+}
+
+variable "propagate_tags" {
+  description = "Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK_DEFINITION"
+  type        = string
+  default     = null
+}

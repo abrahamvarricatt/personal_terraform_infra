@@ -7,6 +7,11 @@ locals {
 
   atlantis_url = "http://figure-out-later"
 
+
+  # ECS task definition
+  latest_task_definition_rev = var.external_task_definition_updates ? max(aws_ecs_task_definition.atlantis.revision, data.aws_ecs_task_definition.atlantis[0].revision) : aws_ecs_task_definition.atlantis.revision
+
+
   # Container definitions
   container_definitions = var.custom_container_definitions == "" ? jsonencode(concat([module.container_definition_github_gitlab.json_map_object], var.extra_container_definitions)) : var.custom_container_definitions
 
@@ -324,6 +329,78 @@ resource "aws_ecs_task_definition" "atlantis" {
   memory                   = var.ecs_task_memory
 
   container_definitions = local.container_definitions
+
+  tags = local.tags
+}
+
+data "aws_ecs_task_definition" "atlantis" {
+  count = var.external_task_definition_updates ? 1 : 0
+
+  task_definition = var.name
+
+  depends_on = [aws_ecs_task_definition.atlantis]
+}
+
+
+module "atlantis_sg" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "v3.17.0"
+
+  name        = var.name
+  vpc_id      = local.vpc_id
+  description = "Security group with open port for Atlantis (${var.atlantis_port}) from ALB, egress ports are all world open"
+
+  ingress_with_source_security_group_id = [
+    {
+      from_port                = var.atlantis_port
+      to_port                  = var.atlantis_port
+      protocol                 = "tcp"
+      description              = "Atlantis"
+      source_security_group_id = module.alb_http_sg.this_security_group_id
+    },
+  ]
+
+  egress_rules = ["all-all"]
+
+  tags = merge(local.tags, var.atlantis_security_group_tags)
+}
+
+
+
+resource "aws_ecs_service" "atlantis" {
+  name    = var.name
+  cluster = module.ecs.this_ecs_cluster_id
+
+  task_definition                    = "${var.name}:${local.latest_task_definition_rev}"
+  desired_count                      = var.ecs_service_desired_count
+  launch_type                        = "FARGATE"
+  platform_version                   = var.ecs_service_platform_version
+  deployment_maximum_percent         = var.ecs_service_deployment_maximum_percent
+  deployment_minimum_healthy_percent = var.ecs_service_deployment_minimum_healthy_percent
+
+  network_configuration {
+    subnets          = local.private_subnet_ids
+    security_groups  = [module.atlantis_sg.this_security_group_id]
+    assign_public_ip = var.ecs_service_assign_public_ip
+  }
+
+  load_balancer {
+    container_name   = var.name
+    container_port   = var.atlantis_port
+    target_group_arn = element(module.alb.target_group_arns, 0)
+  }
+
+  # I think this will not run. because the for loop starts empty. 
+  dynamic "capacity_provider_strategy" {
+    for_each = []
+    content {
+      capacity_provider = "FARGATE_SPOT"
+      weight            = 100
+    }
+  }
+
+  enable_ecs_managed_tags = var.enable_ecs_managed_tags
+  propagate_tags          = var.propagate_tags
 
   tags = local.tags
 }
