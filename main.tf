@@ -7,6 +7,9 @@ locals {
 
   atlantis_url = "http://figure-out-later"
 
+  # Container definitions
+  container_definitions = var.custom_container_definitions == "" ? jsonencode(concat([module.container_definition_github_gitlab.json_map_object], var.extra_container_definitions)) : var.custom_container_definitions
+
   container_definition_environment = [
     {
       name  = "ATLANTIS_ALLOW_REPO_CONFIG"
@@ -279,6 +282,48 @@ module "container_definition_github_gitlab" {
 resource "aws_cloudwatch_log_group" "atlantis" {
   name              = var.name
   retention_in_days = var.cloudwatch_log_retention_in_days
+
+  tags = local.tags
+}
+
+
+
+
+data "aws_iam_policy_document" "ecs_tasks" {
+  statement {
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = compact(distinct(concat(["ecs-tasks.amazonaws.com"], var.trusted_principals)))
+    }
+  }
+}
+
+
+resource "aws_iam_role" "ecs_task_execution" {
+  name                 = "${var.name}-ecs_task_execution"
+  assume_role_policy   = data.aws_iam_policy_document.ecs_tasks.json
+  permissions_boundary = var.permissions_boundary
+
+  tags = local.tags
+}
+
+
+resource "aws_ecs_task_definition" "atlantis" {
+  family                   = var.name
+  execution_role_arn       = aws_iam_role.ecs_task_execution.arn
+  task_role_arn            = aws_iam_role.ecs_task_execution.arn
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = var.ecs_task_cpu
+  memory                   = var.ecs_task_memory
+
+  container_definitions = local.container_definitions
 
   tags = local.tags
 }
