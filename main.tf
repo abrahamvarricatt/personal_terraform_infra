@@ -3,6 +3,68 @@ locals {
   private_subnet_ids = module.vpc.private_subnets
   public_subnet_ids  = module.vpc.public_subnets
 
+  atlantis_image = "runatlantis/atlantis:${var.atlantis_version}"
+
+  atlantis_url = "http://figure-out-later"
+
+  container_definition_environment = [
+    {
+      name  = "ATLANTIS_ALLOW_REPO_CONFIG"
+      value = var.allow_repo_config
+    },
+    {
+      name  = "ATLANTIS_LOG_LEVEL"
+      value = var.atlantis_log_level
+    },
+    {
+      name  = "ATLANTIS_PORT"
+      value = var.atlantis_port
+    },
+    {
+      name  = "ATLANTIS_ATLANTIS_URL"
+      value = local.atlantis_url
+    },
+    {
+      name  = "ATLANTIS_GH_USER"
+      value = var.atlantis_github_user
+    },
+    {
+      name  = "ATLANTIS_REPO_WHITELIST"
+      value = join(",", var.atlantis_repo_whitelist)
+    },
+    {
+      name  = "ATLANTIS_HIDE_PREV_PLAN_COMMENTS"
+      value = var.atlantis_hide_prev_plan_comments
+    },
+  ]
+
+  # Include only one group of secrets - for github, gitlab or bitbucket
+  has_secrets = var.atlantis_github_user_token != ""
+
+  # token
+  secret_name_key        = "ATLANTIS_GH_TOKEN"                               #tfsec:ignore:GEN002
+  secret_name_value_from = var.atlantis_github_user_token_ssm_parameter_name #tfsec:ignore:GEN002
+
+  # webhook
+  secret_webhook_key = "ATLANTIS_GH_WEBHOOK_SECRET" #tfsec:ignore:GEN002
+
+
+  # Secret access tokens
+  container_definition_secrets_1 = local.secret_name_key != "" && local.secret_name_value_from != "" ? [
+    {
+      name      = local.secret_name_key
+      valueFrom = local.secret_name_value_from
+    },
+  ] : []
+
+  # Webhook secrets are not supported by BitBucket
+  container_definition_secrets_2 = local.secret_webhook_key != "" ? [
+    {
+      name      = local.secret_webhook_key
+      valueFrom = var.webhook_ssm_parameter_name
+    },
+  ] : []
+
   tags = merge(
     {
       "Name" = var.name
@@ -17,6 +79,9 @@ data "aws_route53_zone" "this" {
   name         = var.route53_zone_name
   private_zone = false
 }
+
+data "aws_region" "current" {}
+
 
 provider "aws" {
   region = var.region
@@ -128,6 +193,92 @@ module "alb" {
       deregistration_delay = 10
     },
   ]
+
+  tags = local.tags
+}
+
+###################
+# ECS
+###################
+module "ecs" {
+  source  = "terraform-aws-modules/ecs/aws"
+  version = "v2.5.0"
+
+  name               = var.name
+  container_insights = false
+
+  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+
+  default_capacity_provider_strategy = {
+    capacity_provider = "FARGATE"
+  }
+
+  tags = local.tags
+}
+
+module "container_definition_github_gitlab" {
+  source  = "cloudposse/ecs-container-definition/aws"
+  version = "v0.45.2"
+
+  container_name  = var.name
+  container_image = local.atlantis_image
+
+  container_cpu                = var.ecs_task_cpu
+  container_memory             = var.ecs_task_memory
+  container_memory_reservation = var.container_memory_reservation
+
+  user                     = var.user
+  ulimits                  = var.ulimits
+  entrypoint               = null
+  command                  = null
+  working_directory        = null
+  repository_credentials   = var.repository_credentials
+  docker_labels            = null
+  start_timeout            = 30
+  stop_timeout             = 30
+  container_depends_on     = null
+  essential                = true
+  readonly_root_filesystem = false
+  mount_points             = []
+  volumes_from             = []
+
+  port_mappings = [
+    {
+      containerPort = var.atlantis_port
+      hostPort      = var.atlantis_port
+      protocol      = "tcp"
+    },
+  ]
+
+  log_configuration = {
+    logDriver = "awslogs"
+    options = {
+      awslogs-region        = data.aws_region.current.name
+      awslogs-group         = aws_cloudwatch_log_group.atlantis.name
+      awslogs-stream-prefix = "ecs"
+    }
+    secretOptions = []
+  }
+  firelens_configuration = var.firelens_configuration
+
+  environment = concat(
+    local.container_definition_environment,
+    var.custom_environment_variables,
+  )
+
+  secrets = concat(
+    local.container_definition_secrets_1,
+    local.container_definition_secrets_2,
+    var.custom_environment_secrets,
+  )
+}
+
+###################
+# Cloudwatch logs
+###################
+resource "aws_cloudwatch_log_group" "atlantis" {
+  name              = var.name
+  retention_in_days = var.cloudwatch_log_retention_in_days
 
   tags = local.tags
 }
