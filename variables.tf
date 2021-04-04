@@ -120,3 +120,145 @@ variable "create_route53_record" {
   type        = bool
   default     = false
 }
+
+variable "atlantis_version" {
+  description = "Verion of Atlantis to run. If not specified latest will be used"
+  type        = string
+  default     = "latest"
+}
+
+variable "ecs_task_cpu" {
+  description = "The number of cpu units used by the task"
+  type        = number
+  default     = 256
+}
+
+variable "ecs_task_memory" {
+  description = "The amount (in MiB) of memory used by the task"
+  type        = number
+  default     = 512
+}
+
+variable "container_memory_reservation" {
+  description = "The amount of memory (in MiB) to reserve for the container"
+  type        = number
+  default     = 128
+}
+
+variable "user" {
+  description = "The user to run as inside the container. Can be any of these formats: user, user:group, uid, uid:gid, user:gid, uid:group. The default (null) will use the container's configured `USER` directive or root if not set."
+  type        = string
+  default     = null
+}
+
+variable "ulimits" {
+  description = "Container ulimit settings. This is a list of maps, where each map should contain \"name\", \"hardLimit\" and \"softLimit\""
+  type = list(object({
+    name      = string
+    hardLimit = number
+    softLimit = number
+  }))
+  default = null
+}
+
+variable "repository_credentials" {
+  description = "Container repository credentials; required when using a private repo.  This map currently supports a single key; \"credentialsParameter\", which should be the ARN of a Secrets Manager's secret holding the credentials"
+  type        = map(string)
+  default     = null
+}
+
+# Cloudwatch
+variable "cloudwatch_log_retention_in_days" {
+  description = "Retention period of Atlantis CloudWatch logs"
+  type        = number
+  default     = 7
+}
+
+# https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_FirelensConfiguration.html
+variable "firelens_configuration" {
+  description = "The FireLens configuration for the container. This is used to specify and configure a log router for container logs. For more details, see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_FirelensConfiguration.html"
+  type = object({
+    type    = string
+    options = map(string)
+  })
+  default = null
+}
+
+variable "custom_environment_variables" {
+  description = "List of additional environment variables the container will use (list should contain maps with `name` and `value`)"
+  type = list(object(
+    {
+      name  = string
+      value = string
+    }
+  ))
+  default = []
+}
+
+variable "custom_environment_secrets" {
+  description = "List of additional secrets the container will use (list should contain maps with `name` and `valueFrom`)"
+  type = list(object(
+    {
+      name      = string
+      valueFrom = string
+    }
+  ))
+  default = []
+}
+
+variable "atlantis_github_user_token_ssm_parameter_name" {
+  description = "Name of SSM parameter to keep atlantis_github_user_token"
+  type        = string
+  default     = "/atlantis/github/user/token" #tfsec:ignore:GEN001
+}
+
+# SSM parameters for secrets
+variable "webhook_ssm_parameter_name" {
+  description = "Name of SSM parameter to keep webhook secret"
+  type        = string
+  default     = "/atlantis/webhook/secret"
+}
+
+# environment variables
+variable "allow_repo_config" {
+  description = "When true allows the use of atlantis.yaml config files within the source repos."
+  type        = string
+  default     = "false"
+}
+
+variable "atlantis_log_level" {
+  description = "Log level that Atlantis will run with. Accepted values are: <debug|info|warn|error>"
+  type        = string
+  default     = "debug"
+}
+
+# Github
+variable "atlantis_github_user" {
+  description = "GitHub username that is running the Atlantis command"
+  type        = string
+  default     = ""
+}
+
+variable "atlantis_github_user_token" {
+  description = "GitHub token of the user that is running the Atlantis command"
+  type        = string
+  default     = ""
+}
+
+variable "atlantis_github_webhook_secret" {
+  description = "GitHub webhook secret of an app that is running the Atlantis command"
+  type        = string
+  default     = ""
+}
+
+variable "atlantis_repo_whitelist" {
+  description = "List of allowed repositories Atlantis can be used with"
+  type        = list(string)
+}
+
+variable "atlantis_hide_prev_plan_comments" {
+  description = "Enables atlantis server --hide-prev-plan-comments hiding previous plan comments on update"
+  type        = string
+  default     = "false"
+}
+# envvars over
