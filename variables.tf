@@ -262,3 +262,27 @@ variable "atlantis_hide_prev_plan_comments" {
   default     = "false"
 }
 # envvars over
+
+variable "trusted_principals" {
+  description = "A list of principals, in addition to ecs-tasks.amazonaws.com, that can assume the task role"
+  type        = list(string)
+  default     = []
+}
+
+variable "permissions_boundary" {
+  description = "If provided, all IAM roles will be created with this permissions boundary attached."
+  type        = string
+  default     = null
+}
+
+variable "custom_container_definitions" {
+  description = "A list of valid container definitions provided as a single valid JSON document. By default, the standard container definition is used."
+  type        = string
+  default     = ""
+}
+
+variable "extra_container_definitions" {
+  description = "A list of valid container definitions provided as a single valid JSON document. These will be provided as supplimentary to the main Atlantis container definition"
+  type        = list(any)
+  default     = []
+}
