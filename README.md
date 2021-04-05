@@ -3,6 +3,8 @@
 Lets see how terraform docs shows stuff,
 
 
+destroy
+
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
