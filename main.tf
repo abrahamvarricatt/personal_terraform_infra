@@ -404,3 +404,66 @@ resource "aws_ecs_service" "atlantis" {
 
   tags = local.tags
 }
+
+###################
+# Secret for webhook
+###################
+resource "random_id" "webhook" {
+  count = var.atlantis_github_webhook_secret != "" ? 0 : 1
+
+  byte_length = "64"
+}
+
+resource "aws_ssm_parameter" "webhook" {
+  count = 1 # var.atlantis_bitbucket_user_token != "" ? 0 : 1
+
+  name  = var.webhook_ssm_parameter_name
+  type  = "SecureString"
+  value = coalesce(var.atlantis_github_webhook_secret, join("", random_id.webhook.*.hex))
+
+  tags = local.tags
+}
+
+resource "aws_ssm_parameter" "atlantis_github_user_token" {
+  count = var.atlantis_github_user_token != "" ? 1 : 0
+
+  name  = var.atlantis_github_user_token_ssm_parameter_name
+  type  = "SecureString"
+  value = var.atlantis_github_user_token
+
+  tags = local.tags
+}
+
+# ref: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/specifying-sensitive-data.html
+data "aws_iam_policy_document" "ecs_task_access_secrets" {
+  statement {
+    effect = "Allow"
+
+    resources = flatten([
+      aws_ssm_parameter.webhook.*.arn,
+      aws_ssm_parameter.atlantis_github_user_token.*.arn
+    ])
+
+    actions = [
+      "ssm:GetParameters",
+      "secretsmanager:GetSecretValue",
+    ]
+  }
+}
+
+resource "aws_iam_role_policy" "ecs_task_access_secrets" {
+  count = var.atlantis_github_user_token != "" ? 1 : 0
+
+  name = "ECSTaskAccessSecretsPolicy"
+
+  role = aws_iam_role.ecs_task_execution.id
+
+  policy = element(
+    compact(
+      concat(
+        data.aws_iam_policy_document.ecs_task_access_secrets.*.json,
+      ),
+    ),
+    0,
+  )
+}
