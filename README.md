@@ -18,6 +18,7 @@ Lets see how terraform docs shows stuff,
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | = 3.27 |
+| <a name="provider_random"></a> [random](#provider\_random) | = 3.1.0 |
 
 ## Modules
 
@@ -39,7 +40,12 @@ Lets see how terraform docs shows stuff,
 | [aws_ecs_service.atlantis](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/ecs_service) | resource |
 | [aws_ecs_task_definition.atlantis](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/ecs_task_definition) | resource |
 | [aws_iam_role.ecs_task_execution](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.ecs_task_access_secrets](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/iam_role_policy) | resource |
+| [aws_ssm_parameter.atlantis_github_user_token](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/ssm_parameter) | resource |
+| [aws_ssm_parameter.webhook](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/ssm_parameter) | resource |
+| [random_id.webhook](https://registry.terraform.io/providers/hashicorp/random/3.1.0/docs/resources/id) | resource |
 | [aws_ecs_task_definition.atlantis](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/data-sources/ecs_task_definition) | data source |
+| [aws_iam_policy_document.ecs_task_access_secrets](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.ecs_tasks](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/data-sources/iam_policy_document) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/data-sources/region) | data source |
 | [aws_route53_zone.this](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/data-sources/route53_zone) | data source |
