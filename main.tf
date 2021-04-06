@@ -367,43 +367,43 @@ module "atlantis_sg" {
 
 
 
-# resource "aws_ecs_service" "atlantis" {
-#   name    = var.name
-#   cluster = module.ecs.this_ecs_cluster_id
+resource "aws_ecs_service" "atlantis" {
+  name    = var.name
+  cluster = module.ecs.this_ecs_cluster_id
 
-#   task_definition                    = "${var.name}:${local.latest_task_definition_rev}"
-#   desired_count                      = var.ecs_service_desired_count
-#   launch_type                        = "FARGATE"
-#   platform_version                   = var.ecs_service_platform_version
-#   deployment_maximum_percent         = var.ecs_service_deployment_maximum_percent
-#   deployment_minimum_healthy_percent = var.ecs_service_deployment_minimum_healthy_percent
+  task_definition                    = "${var.name}:${local.latest_task_definition_rev}"
+  desired_count                      = var.ecs_service_desired_count
+  launch_type                        = "FARGATE"
+  platform_version                   = var.ecs_service_platform_version
+  deployment_maximum_percent         = var.ecs_service_deployment_maximum_percent
+  deployment_minimum_healthy_percent = var.ecs_service_deployment_minimum_healthy_percent
 
-#   network_configuration {
-#     subnets          = local.private_subnet_ids
-#     security_groups  = [module.atlantis_sg.this_security_group_id]
-#     assign_public_ip = var.ecs_service_assign_public_ip
-#   }
+  network_configuration {
+    subnets          = local.private_subnet_ids
+    security_groups  = [module.atlantis_sg.this_security_group_id]
+    assign_public_ip = var.ecs_service_assign_public_ip
+  }
 
-#   load_balancer {
-#     container_name   = var.name
-#     container_port   = var.atlantis_port
-#     target_group_arn = element(module.alb.target_group_arns, 0)
-#   }
+  load_balancer {
+    container_name   = var.name
+    container_port   = var.atlantis_port
+    target_group_arn = element(module.alb.target_group_arns, 0)
+  }
 
-#   # I think this will not run. because the for loop starts empty. 
-#   dynamic "capacity_provider_strategy" {
-#     for_each = []
-#     content {
-#       capacity_provider = "FARGATE_SPOT"
-#       weight            = 100
-#     }
-#   }
+  # I think this will not run. because the for loop starts empty. 
+  dynamic "capacity_provider_strategy" {
+    for_each = []
+    content {
+      capacity_provider = "FARGATE_SPOT"
+      weight            = 100
+    }
+  }
 
-#   enable_ecs_managed_tags = var.enable_ecs_managed_tags
-#   propagate_tags          = var.propagate_tags
+  enable_ecs_managed_tags = var.enable_ecs_managed_tags
+  propagate_tags          = var.propagate_tags
 
-#   tags = local.tags
-# }
+  tags = local.tags
+}
 
 ###################
 # Secret for webhook
