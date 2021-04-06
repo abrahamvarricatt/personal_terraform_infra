@@ -39,7 +39,6 @@ destroy
 | Name | Type |
 |------|------|
 | [aws_cloudwatch_log_group.atlantis](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/cloudwatch_log_group) | resource |
-| [aws_ecs_service.atlantis](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/ecs_service) | resource |
 | [aws_ecs_task_definition.atlantis](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/ecs_task_definition) | resource |
 | [aws_iam_role.ecs_task_execution](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.ecs_task_access_secrets](https://registry.terraform.io/providers/hashicorp/aws/3.27/docs/resources/iam_role_policy) | resource |
