@@ -5,6 +5,8 @@ public_subnets  = ["10.10.11.0/24", "10.10.12.0/24"]
 
 atlantis_repo_whitelist = ["github.com/terraform-aws-modules/*"]
 
+atlantis_github_user_token = "mygithubpersonalaccesstokenforatlantis"
+
 # Tags
 tags = {
   Name = "atlantis"
