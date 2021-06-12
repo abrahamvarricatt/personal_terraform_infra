@@ -5,4 +5,4 @@ IFS=$'\n\t'
 
 # Setting up common environment variables
 
-export PR_IMAGE_VERSION="3.0"
+export PR_IMAGE_VERSION="4.0"

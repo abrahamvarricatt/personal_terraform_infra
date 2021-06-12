@@ -71,6 +71,11 @@ ENV PATH="/usr/src/venv/bin:$PATH"
 # Setup a working directory
 WORKDIR /usr/src
 
+# install git
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    git && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy over the terraform binary
 COPY --from=builder /usr/src/terraform/terraform /usr/local/bin/terraform
 
