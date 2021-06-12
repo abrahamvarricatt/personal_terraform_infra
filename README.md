@@ -12,7 +12,7 @@ destroy
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | = 1.0.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.27 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 3.44.0 |
 
 ## Providers
 
@@ -28,7 +28,7 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_instance.app_server](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/instance) | resource |
+| [aws_instance.app_server](https://registry.terraform.io/providers/hashicorp/aws/3.44.0/docs/resources/instance) | resource |
 
 ## Inputs
 
