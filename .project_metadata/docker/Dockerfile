@@ -1,4 +1,5 @@
-FROM python:3.9.2
+# Ubuntu 20.04 image
+FROM ubuntu:focal-20210416
 
 # Environment variables
 ENV TERRAFORM_VERSION 0.15.5
